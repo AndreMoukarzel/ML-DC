@@ -13,8 +13,7 @@ Rode com os parametros desejados:
 ./test0.sh naive 0
 ./test0.sh max 1
 
-### (1) busca n~
-ao-informada
+### (1) busca nao-informada
 
 ./test1.sh naive 0
 
