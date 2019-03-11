@@ -1,0 +1,3 @@
+# WARNING
+
+Don't try to run the self driving car learning. The training data is too big to upload to git, so it'll just blow up if you try...
