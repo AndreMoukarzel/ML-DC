@@ -317,15 +317,14 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-
             x, y = state[0]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
 
-            if (not hitsWall):
-                corner = tuple(x for x in state[1] if x != (nextx, nexty))
-                successors.append((((nextx, nexty), corner), action, 1))
+            if not hitsWall:
+                corners_left = tuple(corner for corner in state[1] if corner != (nextx, nexty))
+                successors.append((((nextx, nexty), corners_left), action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -364,8 +363,8 @@ def cornersHeuristic(state, problem):
     for c in state[1]:
         paths.append(util.manhattanDistance(state[0], c))
 
-    return max(paths) # should be max because paths considers all possibilities
-                      # using min tends to underestimate too much, making pacman retarded
+    return max(paths) # should be max because paths considers all possibilities, using min tends to
+                      # underestimate too much, making pacman stupid
 
 
 class AStarCornersAgent(SearchAgent):
