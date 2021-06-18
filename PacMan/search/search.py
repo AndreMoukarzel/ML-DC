@@ -86,85 +86,78 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-
     border = util.Stack()
-    seen = []
+    visited = []
 
     tpl = (problem.getStartState(), [], 0)
     border.push(tpl)
 
-    while (not border.isEmpty()):
+    while not border.isEmpty():
         current = border.pop()
-        seen.append(current[0])
+        visited.append(current[0])
         path = current[1]
 
-        if (problem.isGoalState(current[0])):
+        if problem.isGoalState(current[0]):
             return path
-
         successors = problem.getSuccessors(current[0])
-        for succ in successors:
-            if (seen.count(succ[0]) == 0):
-                succ_path = path + [succ[1]]
-                tpl = (succ[0], succ_path, 0)
+        for suc in successors:
+            if suc[0] not in visited:
+                suc_path = path + [suc[1]]
+                tpl = (suc[0], suc_path, 0)
                 border.push(tpl)
-
-
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     border = util.Queue()
-    seen = []
+    visited = []
 
     tpl = (problem.getStartState(), [], 0)
-    seen.append(tpl[0])
     border.push(tpl)
 
-    while (not border.isEmpty()):
+    while not border.isEmpty():
         current = border.pop()
+        state = current[0]
         path = current[1]
 
-        if (problem.isGoalState(current[0])):
-            return path
+        if state not in visited:
+            visited.append(state)
 
-        successors = problem.getSuccessors(current[0])
-        for succ in successors:
-            if (seen.count(succ[0]) == 0):
-            	seen.append(succ[0])
-                succ_path = path + [succ[1]]
-                tpl = (succ[0], succ_path, 0)
+            if problem.isGoalState(current[0]):
+                return path
+            successors = problem.getSuccessors(current[0])
+            for suc in successors:
+                suc_path = path + [suc[1]]
+                tpl = (suc[0], suc_path, 0)
                 border.push(tpl)
 
 
-
-
 def uniformCostSearch(problem):
-	"""Search the node of least total cost first."""
-	border = util.PriorityQueue()
-	seen = []
+    """Search the node of least total cost first."""
+    border = util.PriorityQueue()
+    visited = []
 
-	tpl = (problem.getStartState(), [], 0)
-	border.push(tpl, 0)
+    tpl = (problem.getStartState(), [], 0)
+    border.push(tpl, 0)
 
-	while (not border.isEmpty()):
-		current = border.pop()
-		path = current[1]
-		cost = current[2]
+    while not border.isEmpty():
+        current = border.pop()
+        state = current[0]
+        path = current[1]
+        cost = current[2]
 
-		if (problem.isGoalState(current[0])):
-			return path
+        if state not in visited:
+            visited.append(state)
 
-		if (seen.count(current[0]) == 0):
-			seen.append(current[0])
+            if problem.isGoalState(current[0]):
+                return path            
 
-			successors = problem.getSuccessors(current[0])
-			for succ in successors:
-				repeat = 0
-				if (seen.count(succ[0]) == 0):
-					succ_path = path + [succ[1]]
-					succ_cost = cost + succ[2]
-					tpl = (succ[0], succ_path, succ_cost)
-					border.update(tpl, succ_cost)
+            successors = problem.getSuccessors(current[0])
+            for succ in successors:
+                succ_path = path + [succ[1]]
+                succ_cost = cost + succ[2]
+                tpl = (succ[0], succ_path, succ_cost)
+                border.update(tpl, succ_cost)
 
 
 def nullHeuristic(state, problem=None):
@@ -176,38 +169,85 @@ def nullHeuristic(state, problem=None):
 
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-	"""Search the node that has the lowest combined cost and heuristic first."""
-	border = util.PriorityQueue()
-	seen = []
+    """Search the node that has the lowest combined cost and heuristic first."""
+    border = util.PriorityQueue()
+    visited = []
 
-	tpl = (problem.getStartState(), [], 0)
-	border.push(tpl, 0)
+    tpl = (problem.getStartState(), [], 0)
+    border.push(tpl, 0)
 
-	while (not border.isEmpty()):
-		current = border.pop()
-		path = current[1]
-		cost = current[2]
+    while not border.isEmpty():
+        current = border.pop()
+        path = current[1]
+        cost = current[2]
 
-		if (problem.isGoalState(current[0])):
-			return path
+        if problem.isGoalState(current[0]):
+            return path
 
-		if (seen.count(current[0]) == 0):
-			seen.append(current[0])
+        if current[0] not in visited:
+            visited.append(current[0])
 
-			successors = problem.getSuccessors(current[0])
-			for succ in successors:
-				repeat = 0
-				if (seen.count(succ[0]) == 0):
-					succ_path = path + [succ[1]]
-					succ_cost = cost + succ[2]
-					tpl = (succ[0], succ_path, succ_cost)
-					border.update(tpl, succ_cost + heuristic(succ[0], problem))
+            successors = problem.getSuccessors(current[0])
+            for succ in successors:
+                if succ[0] not in visited:
+                    succ_path = path + [succ[1]]
+                    succ_cost = cost + succ[2]
+                    tpl = (succ[0], succ_path, succ_cost)
+                    border.update(tpl, succ_cost + heuristic(succ[0], problem))
+
+
+def lrtaIteration(problem, heuristic, iterations):
+    problem._expanded = 0
+    heuristics = {}
+    heuristics[problem.getStartState()] = heuristic(problem.getStartState(), problem)
+    chosen_path = []
+    for _ in range(iterations):
+        border = util.PriorityQueue()
+
+        tpl = (problem.getStartState(), [], 0)
+        border.push(tpl, 0)
+        while not border.isEmpty():
+            current = border.pop()
+            state = current[0]
+            path = current[1]
+            cost = current[2]
+
+            if problem.isGoalState(current[0]):
+                if len(chosen_path) == 0 or len(path) <= len(chosen_path):
+                    chosen_path = path
+                continue
+
+            successors = problem.getSuccessors(current[0])
+            min_succ = successors[0]
+            if not min_succ[0] in heuristics:
+                heuristics[min_succ[0]] = heuristic(min_succ[0], problem)
+            
+            if len(successors) > 0:
+                for succ in successors:
+                    if not succ[0] in heuristics:
+                        heuristics[succ[0]] = heuristic(succ[0], problem)
+                    
+                    cost_to_succ = cost + succ[2] + heuristics[succ[0]]
+                    cost_to_min_succ = cost + min_succ[2] + heuristics[min_succ[0]]
+                    if cost_to_succ < cost_to_min_succ:
+                        min_succ = succ
+            
+            heuristics[state] = max(cost + min_succ[2] + heuristics[min_succ[0]], heuristics[state])
+
+            tpl = (min_succ[0], path + [min_succ[1]], cost + min_succ[2])
+            border.update(tpl, cost + min_succ[2] + heuristics[min_succ[0]])
+    
+    print str(iterations) + "\t| " + str(len(chosen_path)) + "\t\t| " + str(problem._expanded) + "\t\t| " + str(heuristics[problem.getStartState()]) 
+
+    return chosen_path
 
 
 def learningRealTimeAStar(problem, heuristic=nullHeuristic):
     """Execute a number of trials of LRTA* and return the best plan found."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    print "TRIALS\t| CUSTO TOTAL\t| EXPANDED \t| H(0)"
+    lrtaIteration(problem, heuristic, 10)
+    lrtaIteration(problem, heuristic, 20)
+    return lrtaIteration(problem, heuristic, 100)
 
     # MAXTRIALS = ...
     
